@@ -39,44 +39,30 @@ const swap1 = function()
   takingInput = false;
   board.setHighlightColor('grey');
   
-  var numEliminated = board.attemptSwap();
-  board.redraw();
+  board.swap();
   
-  if(numEliminated == 0)
+  var matches = board.findMatches();
+  
+  if(matches.length == 0)
   {
-    takingInput = true;
+    // didn't make any matches; revert.
+	board.swap();
+	takingInput = true;
 	board.setHighlightColor('yellow');
 	board.redraw();
-	return;
-  }
-  
-  score += numEliminated * (numEliminated + 1) / 2;
-  scoreDiv.innerHTML = score;
-  
-  setTimeout(swap2, MATCHDELAY);
-};
-
-/** 2. Drop any suspended squares */
-const swap2 = function()
-{
-  var dropped = board.drop();
-  var refilled = board.refillTop();
-  board.redraw();
-  
-  if(dropped || refilled)
-  {
-	  setTimeout(swap2, DROPDELAY);
   }
   else
   {
-	  setTimeout(swap3, DROPDELAY);
+	swap2();
   }
 };
 
-/** 3. Check for matches */
-const swap3 = function()
+/** 2. Check for matches */
+const swap2 = function()
 {
-  var numEliminated = board.eliminateMatches();
+  var matches = board.findMatches();
+  board.removeSquares(matches);
+  var numEliminated = matches.length;
   board.redraw();
   
   score += numEliminated * (numEliminated + 1) / 2;
@@ -84,13 +70,30 @@ const swap3 = function()
   
   if(numEliminated > 0)
   {	
-	setTimeout(swap2, MATCHDELAY);
+	setTimeout(swap3, MATCHDELAY);
   }
   else
   {
 	takingInput = true;
 	board.setHighlightColor('yellow');
 	board.redraw();
+  }
+};
+
+/** 3. Drop any suspended squares */
+const swap3 = function()
+{
+  var dropped = board.drop();
+  var refilled = board.refillTop();
+  board.redraw();
+  
+  if(dropped || refilled)
+  {
+	  setTimeout(swap3, DROPDELAY);
+  }
+  else
+  {
+	  setTimeout(swap2, DROPDELAY);
   }
 };
 

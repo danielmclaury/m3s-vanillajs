@@ -42,10 +42,14 @@ class M3SBoard
       this._grid.push(nextRow);
     }
 	
-	while(this.eliminateMatches() > 0)
+	var matches = [];
+	do
 	{
-	  this._refillGrid();
+		this.removeSquares(matches);
+		this._refillGrid();
+		matches = this.findMatches();
 	}
+	while(matches.length > 0);
   }
   
   /** (private) picks a random color from those available */
@@ -116,8 +120,8 @@ class M3SBoard
     this._highlightPosition = [r, c];
   }
   
-  /** Tries to swap the two selected pieces. */
-  attemptSwap()
+  /** Swaps the two selected pieces. */
+  swap()
   {
 	  var r, c;
 	  
@@ -125,23 +129,33 @@ class M3SBoard
 	  
 	  var temp = this._grid[r][c];
 	  this._grid[r][c] = this._grid[r][c+1];
-	  this._grid[r][c+1] = temp;
-		  
-	  var numEliminated = this.eliminateMatches();
-	  
-	  if(numEliminated == 0)
-	  {
-		temp = this._grid[r][c];
-		this._grid[r][c] = this._grid[r][c+1];
-		this._grid[r][c+1] = temp;
-	  }
-	  
-	  return numEliminated;
+	  this._grid[r][c+1] = temp;	  
   }
   
   eliminateMatches()
   {
-	var eliminated = new Set();
+	  var matched = this.findMatches();
+	  
+	  this.removeSquares(matched);
+	  
+	  return matched.length;
+  }
+  
+  removeSquares(squares)
+  {
+    for(var i = 0; i < squares.length; i++)
+	{
+	  var r, c;
+	  
+	  [r, c] = squares[i];
+	  
+	  this._grid[r][c] = null;
+	}
+  }
+  
+  findMatches()
+  {
+	var matched = new Set();
 	  
     for(var row = 0; row < this._rows; row++)
     {
@@ -152,9 +166,9 @@ class M3SBoard
 	    if(this._grid[row][col] == this._grid[row][col - 1]
 		&& this._grid[row][col] == this._grid[row][col + 1])
 		{
-			eliminated.add([row, col - 1]);
-			eliminated.add([row, col]);
-			eliminated.add([row, col + 1]);
+			matched.add([row, col - 1]);
+			matched.add([row, col]);
+			matched.add([row, col + 1]);
 		}
 	  }
     }
@@ -168,24 +182,14 @@ class M3SBoard
 	    if(this._grid[row][col] == this._grid[row - 1][col]
 		&& this._grid[row][col] == this._grid[row + 1][col])
 		{
-			eliminated.add([row - 1, col]);
-			eliminated.add([row    , col]);
-			eliminated.add([row + 1, col]);
+			matched.add([row - 1, col]);
+			matched.add([row    , col]);
+			matched.add([row + 1, col]);
 		}
 	  }
     }
 	
-	var me = this;
-	
-	eliminated.forEach(function(p)
-	{
-      var row, col;
-	  [row, col] = p;
-	  
-	  me._grid[row][col] = null;
-	});
-	
-	return eliminated.size;
+	return Array.from(matched);
   }
   
   drop()
