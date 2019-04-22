@@ -13,7 +13,14 @@ class M3SBoard
 	  	  	  
 	  this._highlightPosition = [3, 4];
 	  
+	  this._backgroundColor = "white";
+	  
 	  this._HIGHLIGHTCOLOR = "yellow";
+  }
+  
+  setBackgroundColor(color)
+  {
+    this._backgroundColor = color;
   }
   
   /** Provide a list of colors to use for the squares */
@@ -68,7 +75,8 @@ class M3SBoard
   /** (private) redraws the grid */
   _redrawGrid()
   {
-	this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
+	this._context.fillStyle = this._backgroundColor;
+	this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
 	
 	for(var row = 0; row < this._rows; row++)
 	{

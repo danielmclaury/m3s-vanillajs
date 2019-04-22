@@ -1,4 +1,4 @@
-const MATCHDELAY = 200;
+const MATCHDELAY = 500;
 const DROPDELAY = 200;
 
 var board;
@@ -20,7 +20,7 @@ const init = function()
 const start = function()
 {
   board.setSquareColors([
-      'pink', 'violet', 'aquamarine', 'orange'
+      'pink', 'violet', 'aquamarine', 'orange', 'lightgreen'
   ]);
   
   board.setHighlightColor('yellow');
@@ -63,7 +63,9 @@ const swap2 = function()
   var matches = board.findMatches();
   board.removeSquares(matches);
   var numEliminated = matches.length;
+  board.setBackgroundColor('yellow');
   board.redraw();
+  board.setBackgroundColor('white');
   
   score += numEliminated * (numEliminated + 1) / 2;
   scoreDiv.innerHTML = score;
