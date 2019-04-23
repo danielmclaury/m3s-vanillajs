@@ -128,12 +128,17 @@ class M3SBoard
     this._highlightPosition = [r, c];
   }
   
+  getPosition()
+  {
+	  return this._highlightPosition;
+  }
+  
   /** Swaps the two selected pieces. */
-  swap()
+  swap(pos)
   {
 	  var r, c;
 	  
-	  [r, c] = this._highlightPosition;
+	  [r, c] = pos;
 	  
 	  var temp = this._grid[r][c];
 	  this._grid[r][c] = this._grid[r][c+1];

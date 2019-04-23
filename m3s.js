@@ -8,6 +8,7 @@ const DROPDELAY = 200;
 
 const ACTIVEHIGHLIGHT = 'yellow';
 const INACTIVEHIGHLIGHT = 'grey';
+const BADHIGHLIGHT = 'red';
 
 const MATCHCOLOR = 'yellow';
 const BLANKCOLOR = 'white';
@@ -21,7 +22,7 @@ var board;
 var scoreDiv, score;
 var highScoreDiv, highScore;
 var timeDiv, timeRemaining;
-var takingInput, begun;
+var takingInput, begun, frozen;
 var respawnCounter;
 
 const init = function()
@@ -58,6 +59,7 @@ const start = function()
   
   takingInput = true;
   begun = false;
+  frozen = false;
   
   tick();
 };
@@ -148,20 +150,19 @@ const gameover2 = function()
 /** 1. (Not reentrant) Attempt swap; if it doesn't eliminate anything, revert. */
 const swap1 = function()
 {
-  takingInput = false;
-  board.setHighlightColor(INACTIVEHIGHLIGHT);
-  
-  board.swap();
+  takingInput = false;	
+	
+  var pos = board.getPosition();	
+  board.swap(pos);
   
   var matches = board.findMatches();
   
   if(matches.length == 0)
   {
-    // didn't make any matches; revert.
-	board.swap();
-	takingInput = true;
-	board.setHighlightColor(ACTIVEHIGHLIGHT);
+	board.setHighlightColor(BADHIGHLIGHT);
 	board.redraw();
+    frozen = true;	
+    setTimeout(unswap, 300, pos);
   }
   else
   {
@@ -169,12 +170,29 @@ const swap1 = function()
   }
 };
 
+const unswap = function(pos)
+{
+	board.swap(pos);
+	board.redraw();
+	
+	setTimeout(unswap2, 300);
+}
+
+const unswap2 = function()
+{
+	board.setHighlightColor(ACTIVEHIGHLIGHT);
+	
+	takingInput = true;
+	frozen = false;
+}
+
 /** 2. Check for matches */
 const swap2 = function()
 {
   var matches = board.findMatches();
   board.removeSquares(matches);
   var numEliminated = matches.length;
+  board.setHighlightColor(INACTIVEHIGHLIGHT);
   board.setBackgroundColor(MATCHCOLOR);
   board.redraw();
   board.setBackgroundColor(BLANKCOLOR);
@@ -216,6 +234,8 @@ const keyDownHandler = function(e)
   if(timeRemaining == 0) return;
   
   begun = true;
+  
+  if(frozen) return;
 	
   switch(e.key)
   {
