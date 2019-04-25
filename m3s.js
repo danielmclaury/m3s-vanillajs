@@ -46,7 +46,7 @@ const start = function()
   timeRemaining = GAMELENGTH;	
 
   board.setSquareColors([
-      'pink', 'violet', 'aquamarine', 'orange', 'lightgreen'
+       '#60992d', '#d4adcf', '#856084', '#84e296', '#2b4162'
   ]);
   
   board.setHighlightColor(ACTIVEHIGHLIGHT);
